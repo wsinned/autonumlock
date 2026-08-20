@@ -43,6 +43,32 @@ External keyboard CONNECTED.
 It's best to run it as an autostart application in your DE.
 
 
+Nix
+---
+
+Run AutoNumlock directly from the flake:
+
+```bash
+nix run github:wsinned/autonumlock -- -h
+```
+
+To use it from another flake, add the input:
+
+```nix
+inputs.autonumlock = {
+  url = "github:wsinned/autonumlock";
+  inputs.nixpkgs.follows = "nixpkgs";
+};
+```
+
+Then add its default package to the relevant NixOS or Home Manager package
+list:
+
+```nix
+inputs.autonumlock.packages.${pkgs.stdenv.hostPlatform.system}.default
+```
+
+
 Help page
 ---------
 
