@@ -18,14 +18,19 @@ sleeptime=<SLEEP>
 
 # plug-in event
 function on_connect {
-  numlockx on
-  # ... your custom commands go here ...
+  if [[ -n "${WAYLAND_DISPLAY:-}" ]]; then
+    if ! numlock_is_on; then
+      ydotool key 69:1 69:0
+    fi
+  else
+    numlockx on
+  fi
 }
 
 
 # called each poll when connected
 function on_connect_poll {
-  false 
+  false
   # something must be here, or bash throws a syntax error...
 }
 
@@ -34,13 +39,29 @@ function on_connect_poll {
 
 # disconnect event
 function on_disconnect {
-  numlockx off
-  # ...
+  if [[ -n "${WAYLAND_DISPLAY:-}" ]]; then
+    if numlock_is_on; then
+      ydotool key 69:1 69:0
+    fi
+  else
+    numlockx off
+  fi
 }
 
 
 # called each poll when missing
 function on_disconnect_poll {
-  false 
+  false
   # ...
+}
+
+function numlock_is_on {
+  local led
+  for led in /sys/class/leds/*::numlock/brightness; do
+    if [[ -r "$led" ]] && [[ "$(<"$led")" -gt 0 ]]; then
+      return 0
+    fi
+  done
+
+  return 1
 }
